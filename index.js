@@ -9,6 +9,7 @@ var bot = new TelegramBot(TOKEN, {polling: true});
 // Any kind of message
 bot.onText(/(music|музыка)/, function (msg) {
     var fromId = msg.from.id;
+    var chatId = msg.chat.id;
     var text = 'сейчас не играет никакая музыка';
     request('https://api.vk.com/method/users.get?user_ids=7149276&fields=status', function (error, response, body) {
         if (!error && response.statusCode == 200) {
@@ -18,7 +19,7 @@ bot.onText(/(music|музыка)/, function (msg) {
                 text = 'сейчас играет: ';
                 text = text + vk_response.status_audio.artist + ' – ' + vk_response.status_audio.title;
             }
-            bot.sendMessage(fromId, text);
+            bot.sendMessage(chatId, text);
         }
     });
 });
