@@ -3,12 +3,9 @@ var request = require('request');
 
 var TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
-// Setup polling way
 var bot = new TelegramBot(TOKEN, {polling: true});
 
-// Any kind of message
 bot.onText(/(music|музыка)/, function (msg) {
-    var fromId = msg.from.id;
     var chatId = msg.chat.id;
     var text = 'сейчас не играет никакая музыка';
     request('https://api.vk.com/method/users.get?user_ids=7149276&fields=status', function (error, response, body) {
