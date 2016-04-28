@@ -2,6 +2,7 @@ var TelegramBot = require('node-telegram-bot-api');
 var request = require('request');
 
 var TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+var LASTFM_API_KEY = process.env.LASTFM_API_KEY;
 
 var bot = new TelegramBot(TOKEN, {polling: true});
 
@@ -28,8 +29,14 @@ bot.onText(/(music spotify|музыка спотифай|спотифай|spotif
     var text = 'сейчас не играет никакая музыка';
     request(
         {
-            url: 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=iamseventeen&api_key=531f66f07ff0cc0c50172812007a8679&format=json',
-            method: 'GET',
+            url: 'http://ws.audioscrobbler.com/2.0/',
+            qs: {
+                method: 'user.getrecenttracks',
+                user: 'iamseventeen',
+                api_key: LASTFM_API_KEY,
+                format: 'json'
+            },
+            method: 'GET'
         },
         function(error, response, body) {
             if (!error && response.statusCode == 200) {
