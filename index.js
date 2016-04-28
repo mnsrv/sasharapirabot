@@ -45,7 +45,11 @@ bot.onText(/(music spotify|музыка спотифай|спотифай|spotif
                 var artist = track.artist['#text'];
                 var name = track.name;
 
-                var output = '🎧Сейчас играет: ' + artist + ' – ' + name;
+                if (artist.match(/bieber/i)){
+                    var output = '🎧Сейчас играет хуета';
+                } else {
+                    var output = '🎧Сейчас играет: ' + artist + ' – ' + name;
+                }
                 bot.sendMessage(chatId, output);
             }
         }
