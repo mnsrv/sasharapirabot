@@ -7,32 +7,15 @@ var LASTFM_API_KEY = process.env.LASTFM_API_KEY;
 var bot = new TelegramBot(TOKEN, {polling: true});
 
 console.log('hello');
+var available;
 
-bot.onText(/(music vk|музыка вк|vk music|vk)/, function (msg) {
-    var chatId = msg.chat.id;
-    var text = 'сейчас не играет никакая музыка';
-    request('https://api.vk.com/method/users.get?user_ids=7149276&fields=status', function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-            var info = JSON.parse(body);
-            var vk_response = info.response[0];
-            if (vk_response.status_audio) {
-                text = 'сейчас играет: ';
-                text = text + vk_response.status_audio.artist + ' – ' + vk_response.status_audio.title;
-            }
-            bot.sendMessage(chatId, text);
-        }
-    });
-});
-
-bot.onText(/(music spotify|музыка спотифай|спотифай|spotify music|spotify|шо за трек|шозатрек)/, function(msg) {
-    var chatId = msg.chat.id;
-    var text = 'сейчас не играет никакая музыка';
+function setRequest(user, displayName, chatId) {
     request(
         {
             url: 'http://ws.audioscrobbler.com/2.0/',
             qs: {
                 method: 'user.getrecenttracks',
-                user: 'iamseventeen',
+                user: user,
                 api_key: LASTFM_API_KEY,
                 format: 'json'
             },
@@ -40,14 +23,41 @@ bot.onText(/(music spotify|музыка спотифай|спотифай|spotif
         },
         function(error, response, body) {
             if (!error && response.statusCode == 200) {
+                console.log(available);
                 var info = JSON.parse(body);
                 var track = info.recenttracks.track[0];
-                var artist = track.artist['#text'];
-                var name = track.name;
-
-                var output = '🎧Сейчас играет: ' + artist + ' – ' + name;
-                bot.sendMessage(chatId, output);
+                var text = user + ' 💤';
+                if (track['@attr'] && track['@attr'].nowplaying) {
+                    var artist = track.artist['#text'];
+                    var name = track.name;
+                    text = displayName + ' 🔊 ' + artist + ' – ' + name;
+                    if (!available) {
+                        // первый трек есть
+                        available = 1;
+                    }
+                    bot.sendMessage(chatId, text);
+                } else {
+                    if (available) {
+                        // второго трека нет
+                        if (available == -1) {
+                            // первого трека тоже нет
+                            bot.sendMessage(chatId, 'Никто ничего не слушает');
+                        }
+                    } else {
+                        // первого трека нет
+                        available = -1;
+                    }
+                }
             }
         }
     );
+}
+
+// Matches /music
+bot.onText(/\/music/, function (msg) {
+    var chatId = msg.chat.id;
+    console.log(msg.from);
+    available = 0;
+    setRequest('iamseventeen', 'Диман', chatId);
+    setRequest('Gidross', 'Саша', chatId);
 });
