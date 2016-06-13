@@ -21,7 +21,7 @@ app.post('/slack', function(req, res) {
 
     var url = req.body.response_url;
     if(req.body.token === process.env.SLACK_TOKEN) {
-        res.sendStatus(200);
+        res.status(200).send();
         setTimeout(function() {
             request({
                 uri: url,
