@@ -1,8 +1,15 @@
+var TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+var SLACK_TOKEN = process.env.SLACK_TOKEN;
+var LASTFM_API_KEY = process.env.LASTFM_API_KEY;
+
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 
+var TelegramBot = require('node-telegram-bot-api');
 var request = require('request');
+
+var bot = new TelegramBot(TOKEN, {polling: true});
 
 // to support URL-encoded bodies
 app.use(bodyParser.urlencoded({
@@ -15,87 +22,63 @@ app.listen(app.get('port'), function() {
     console.log('Node app is running on port', app.get('port'));
 });
 
-app.post('/slack', function(req, res) {
-    console.log('hello from slack');
-    console.log(req.body.user_name);
+var sendMusicToSlack = function(url, music) {
+    request({
+        uri: url,
+        method: 'POST',
+        json: {
+            'response_type': 'ephemeral',
+            'text': music
+        }
+    });
+};
 
+var checkMusicFromUser = function(user, callback) {
+    var lastfmOptions = {
+        url: 'http://ws.audioscrobbler.com/2.0/',
+        qs: {
+            method: 'user.getrecenttracks',
+            user: user,
+            api_key: LASTFM_API_KEY,
+            format: 'json'
+        },
+        method: 'GET'
+    };
+
+    request(lastfmOptions, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+            var info = JSON.parse(body);
+            var track = info.recenttracks.track[0];
+            if (track['@attr'] && track['@attr'].nowplaying) {
+                var artist = track.artist['#text'];
+                var name = track.name;
+                var music = artist + ' – ' + name;
+                callback(music);
+            }
+        }
+    });
+};
+
+app.post('/slack', function(req, res) {
     var url = req.body.response_url;
-    if(req.body.token === process.env.SLACK_TOKEN) {
+    var token = req.body.token;
+    var slackCallback = function(music) {
+        sendMusicToSlack(url, music);
+    };
+    if(token === SLACK_TOKEN) {
         res.status(200).send();
-        setTimeout(function() {
-            request({
-                uri: url,
-                method: 'POST',
-                json: {
-                    'text': 'HELLOOOOO'
-                }
-            });
-        }, 3500);
+        checkMusicFromUser('Gidross', slackCallback);
     } else {
         console.log('Incorrect token.');
         res.end();
     }
 });
 
-var TelegramBot = require('node-telegram-bot-api');
-
-var TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-var LASTFM_API_KEY = process.env.LASTFM_API_KEY;
-
-var bot = new TelegramBot(TOKEN, {polling: true});
-
-console.log('hello');
-var available;
-
-function setRequest(user, displayName, chatId) {
-    request(
-        {
-            url: 'http://ws.audioscrobbler.com/2.0/',
-            qs: {
-                method: 'user.getrecenttracks',
-                user: user,
-                api_key: LASTFM_API_KEY,
-                format: 'json'
-            },
-            method: 'GET'
-        },
-        function(error, response, body) {
-            if (!error && response.statusCode == 200) {
-                console.log(available);
-                var info = JSON.parse(body);
-                var track = info.recenttracks.track[0];
-                var text = user + ' 💤';
-                if (track['@attr'] && track['@attr'].nowplaying) {
-                    var artist = track.artist['#text'];
-                    var name = track.name;
-                    text = displayName + ' 🔊 ' + artist + ' – ' + name;
-                    if (!available) {
-                        // первый трек есть
-                        available = 1;
-                    }
-                    bot.sendMessage(chatId, text);
-                } else {
-                    if (available) {
-                        // второго трека нет
-                        if (available == -1) {
-                            // первого трека тоже нет
-                            bot.sendMessage(chatId, 'Никто ничего не слушает');
-                        }
-                    } else {
-                        // первого трека нет
-                        available = -1;
-                    }
-                }
-            }
-        }
-    );
-}
-
 // Matches /music
 bot.onText(/\/music/, function (msg) {
     var chatId = msg.chat.id;
-    console.log(msg.from);
-    available = 0;
-    setRequest('iamseventeen', 'Диман', chatId);
-    setRequest('Gidross', 'Саша', chatId);
+    var telegramCallback = function(music) {
+        bot.sendMessage(chatId, music);
+    };
+    checkMusicFromUser('Gidross', telegramCallback);
 });
