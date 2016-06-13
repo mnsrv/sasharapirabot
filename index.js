@@ -1,5 +1,11 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var app = express();
+
+// to support URL-encoded bodies
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -7,9 +13,9 @@ app.listen(app.get('port'), function() {
     console.log('Node app is running on port', app.get('port'));
 });
 
-app.get('/slack', function(request, response) {
+app.post('/slack', function(req, res) {
     console.log('hello from slack');
-    console.log(response);
+    console.log(req.body.user_name);
 });
 
 var TelegramBot = require('node-telegram-bot-api');
