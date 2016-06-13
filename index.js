@@ -7,6 +7,11 @@ app.listen(app.get('port'), function() {
     console.log('Node app is running on port', app.get('port'));
 });
 
+app.get('/slack', function(request, response) {
+    console.log('hello from slack');
+    console.log(response);
+});
+
 var TelegramBot = require('node-telegram-bot-api');
 var request = require('request');
 
