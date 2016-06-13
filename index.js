@@ -9,7 +9,7 @@ var app = express();
 var TelegramBot = require('node-telegram-bot-api');
 var request = require('request');
 
-var bot = new TelegramBot(TOKEN, {polling: true});
+var bot = new TelegramBot(TELEGRAM_TOKEN, {polling: true});
 
 // to support URL-encoded bodies
 app.use(bodyParser.urlencoded({
