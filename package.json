@@ -1,7 +1,7 @@
 {
   "name": "sasharapirabot",
-  "version": "0.0.1",
-  "description": "",
+  "version": "1.0.0",
+  "description": "telegram and slack bot for last.fm",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

@@ -1,10 +1,5 @@
 sasharapirabot
 ==============
 
-Testing Telegram API
-
-Start bot:
-----------
-```
-node index.js
-```
+Shows music currently playing using LastFM.
+Deployed on heroku, works as slack slash command and telegram bot.
