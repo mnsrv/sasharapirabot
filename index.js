@@ -2,6 +2,8 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
 
+var request = require('request');
+
 // to support URL-encoded bodies
 app.use(bodyParser.urlencoded({
     extended: true
@@ -16,10 +18,26 @@ app.listen(app.get('port'), function() {
 app.post('/slack', function(req, res) {
     console.log('hello from slack');
     console.log(req.body.user_name);
+
+    var url = req.body.response_url;
+    if(req.body.token === process.env.SLACK_TOKEN) {
+        res.sendStatus(200);
+        setTimeout(function() {
+            request({
+                uri: url,
+                method: 'POST',
+                json: {
+                    'text': 'HELLOOOOO'
+                }
+            });
+        }, 3500);
+    } else {
+        console.log('Incorrect token.');
+        res.end();
+    }
 });
 
 var TelegramBot = require('node-telegram-bot-api');
-var request = require('request');
 
 var TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 var LASTFM_API_KEY = process.env.LASTFM_API_KEY;
