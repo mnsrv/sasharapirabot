@@ -68,6 +68,7 @@ app.post('/slack', function(req, res) {
     if(token === SLACK_TOKEN) {
         res.status(200).send();
         checkMusicFromUser('Gidross', slackCallback);
+        checkMusicFromUser('iamseventeen', slackCallback);
     } else {
         console.log('Incorrect token.');
         res.end();
@@ -81,4 +82,5 @@ bot.onText(/\/music/, function (msg) {
         bot.sendMessage(chatId, music);
     };
     checkMusicFromUser('Gidross', telegramCallback);
+    checkMusicFromUser('iamseventeen', telegramCallback);
 });
