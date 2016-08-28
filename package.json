@@ -11,6 +11,7 @@
   "dependencies": {
     "body-parser": "^1.15.1",
     "express": "^4.13.4",
+    "instapaper": "^1.1.0",
     "node-telegram-bot-api": "^0.21.1"
   },
   "repository": {
