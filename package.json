@@ -1,7 +1,7 @@
 {
   "name": "sasharapirabot",
-  "version": "1.0.0",
-  "description": "telegram and slack bot for last.fm",
+  "version": "2.0.0",
+  "description": "my own butler to help me doing small tasks",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
