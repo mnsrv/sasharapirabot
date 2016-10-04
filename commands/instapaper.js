@@ -5,6 +5,8 @@ module.exports = function(bot) {
     var CONSUMER_SECRET = process.env.CONSUMER_SECRET;
     var USERNAME = process.env.USERNAME;
     var PASSWORD = process.env.PASSWORD;
+    
+    var CHAT_ID = process.env.CHAT_ID;
 
     var BOOKMARKID = 0;
 
@@ -51,6 +53,7 @@ module.exports = function(bot) {
 
     bot.onText(/\/count/, function(msg) {
         var fromId = msg.from.id;
+        var chatId = msg.chat.id;
         // Load a list of bookmarks using promises...
         client.bookmarks.list({limit: 500}).then(function(bookmarks) {
             // remove meta and user info
@@ -58,15 +61,16 @@ module.exports = function(bot) {
             bookmarks.shift();
             var count = bookmarks.length;
             var stateWord = getNumEnding(count, ['статью', 'статьи', 'статей']);
-            bot.sendMessage(fromId, 'у вас ' + count + ' ' + stateWord);
+            bot.sendMessage(chatId, 'у вас ' + count + ' ' + stateWord);
         }).catch(function(err) {
             console.warn('oh noes', err);
-            bot.sendMessage(fromId, 'ошибка :c');
+            bot.sendMessage(chatId, 'ошибка :c');
         });
     });
 
     bot.onText(/\/random/, function(msg) {
         var fromId = msg.from.id;
+        var chatId = msg.chat.id;
         // Load a list of bookmarks using promises...
         client.bookmarks.list({limit: 500}).then(function(bookmarks) {
             // remove meta and user info
@@ -76,19 +80,24 @@ module.exports = function(bot) {
             var randomNumber = getRandomInt(0, count);
             var randomState = bookmarks[randomNumber].url;
             BOOKMARKID = bookmarks[randomNumber].bookmark_id;
-            bot.sendMessage(fromId, 'случайная статья №' + randomNumber + ':\n' +
+            bot.sendMessage(chatId, 'случайная статья №' + randomNumber + ':\n' +
                 randomState
             );
         }).catch(function(err) {
             console.warn('oh noes', err);
-            bot.sendMessage(fromId, 'ошибка :c');
+            bot.sendMessage(chatId, 'ошибка :c');
         });
     });
 
     bot.onText(/\/archive/, function (msg) {
         var fromId = msg.from.id;
+        var chatId = msg.chat.id;
+        if (chatId != CHAT_ID) {
+            bot.sendMessage(chatId, 'отказано в доступе');
+            return false;
+        }
         if (!BOOKMARKID) {
-            bot.sendMessage(fromId, 'не выбрана статья');
+            bot.sendMessage(chatId, 'не выбрана статья');
             return false;
         }
         // Moves the specified bookmark to the Archive.
@@ -97,17 +106,22 @@ module.exports = function(bot) {
         client.bookmarks.archive(BOOKMARKID).then(function(bookmark) {
             // remove meta and user info
             BOOKMARKID = false;
-            bot.sendMessage(fromId, 'статья перенесена в архив');
+            bot.sendMessage(chatId, 'статья перенесена в архив');
         }).catch(function(err) {
             console.warn('oh noes', err);
-            bot.sendMessage(fromId, 'ошибка :c');
+            bot.sendMessage(chatId, 'ошибка :c');
         });
     });
 
     bot.onText(/\/delete/, function (msg) {
         var fromId = msg.from.id;
+        var chatId = msg.chat.id;
+        if (chatId != CHAT_ID) {
+            bot.sendMessage(chatId, 'отказано в доступе');
+            return false;
+        }
         if (!BOOKMARKID) {
-            bot.sendMessage(fromId, 'не выбрана статья');
+            bot.sendMessage(chatId, 'не выбрана статья');
             return false;
         }
         // Permanently deletes the specified bookmark. This is NOT the same as Archive. Please be clear to users if you're going to do this.
@@ -116,10 +130,10 @@ module.exports = function(bot) {
         client.bookmarks.delete(BOOKMARKID).then(function() {
             // remove meta and user info
             BOOKMARKID = false;
-            bot.sendMessage(fromId, 'статья удалена');
+            bot.sendMessage(chatId, 'статья удалена');
         }).catch(function(err) {
             console.warn('oh noes', err);
-            bot.sendMessage(fromId, 'ошибка :c');
+            bot.sendMessage(chatId, 'ошибка :c');
         });
     });
 };
