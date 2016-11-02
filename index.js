@@ -12,8 +12,13 @@ app.listen(app.get('port'), function() {
 });
 
 var TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+var BOTANIO_TOKEN = process.env.BOTANIO_TOKEN;
 var TelegramBot = require('node-telegram-bot-api');
 var bot = new TelegramBot(TELEGRAM_TOKEN, {polling: true});
+var botan = require('botanio')(BOTANIO_TOKEN);
+var analytics = function(userMessage, event) {
+    botan.track(userMessage, event);
+};
 
-require('./commands/music')(app, bot);
-require('./commands/instapaper')(bot);
+require('./commands/music')(app, bot, analytics);
+require('./commands/instapaper')(bot, analytics);
