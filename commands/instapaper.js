@@ -5,8 +5,11 @@ module.exports = function(bot, analytics) {
     var CONSUMER_SECRET = process.env.CONSUMER_SECRET;
     var USERNAME = process.env.USERNAME;
     var PASSWORD = process.env.PASSWORD;
-    
     var CHAT_ID = process.env.CHAT_ID;
+    var randomText = "Покажи случайную статью";
+    var randomRegExp = new RegExp('\/random|' + randomText);
+    var countText = "Сколько статей в списке?";
+    var countRegExp = new RegExp('\/count|' + countText);
 
     var BOOKMARKID = 0;
 
@@ -51,7 +54,25 @@ module.exports = function(bot, analytics) {
         return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    bot.onText(/\/count/, function(msg) {
+  var keyboardOptions = {
+    parse_mode: "Markdown",
+    reply_markup: {
+      keyboard: [
+        [{ text: randomText }],
+        [{ text: countText }]
+      ]
+    }
+  };
+  var inlineOptions = {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [{text: "В архив", callback_data: "archive"}],
+        [{text: "Удалить", callback_data: "delete"}]
+      ]
+    }
+  };
+      var sendCount = function(msg) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'count');
@@ -61,15 +82,14 @@ module.exports = function(bot, analytics) {
             bookmarks.shift();
             bookmarks.shift();
             var count = bookmarks.length;
-            bot.sendMessage(chatId, 'у вас ' + count + ' ' + stateWord);
             var stateWord = getNumEnding(count, ['статья', 'статьи', 'статей']);
+            bot.sendMessage(chatId, 'у вас *' + count + '* ' + stateWord, keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
         });
-    });
-
-    bot.onText(/\/random/, function(msg) {
+      };
+      var sendRandomArticle = function(msg) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'random');
@@ -82,16 +102,13 @@ module.exports = function(bot, analytics) {
             var randomNumber = getRandomInt(0, count);
             var randomState = bookmarks[randomNumber].url;
             BOOKMARKID = bookmarks[randomNumber].bookmark_id;
-            bot.sendMessage(chatId, 'случайная статья №' + randomNumber + ':\n' +
-                randomState
-            );
+            bot.sendMessage(chatId, '*случайная статья №' + randomNumber + ':*\n' + randomState, inlineOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
         });
-    });
-
-    bot.onText(/\/archive/, function (msg) {
+      };
+      var archiveArticle = function (msg) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'archive');
@@ -109,14 +126,13 @@ module.exports = function(bot, analytics) {
         client.bookmarks.archive(BOOKMARKID).then(function(bookmark) {
             // remove meta and user info
             BOOKMARKID = false;
-            bot.sendMessage(chatId, 'статья перенесена в архив');
+            bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
         });
-    });
-
-    bot.onText(/\/delete/, function (msg) {
+      };
+      var deleteArticle = function (msg) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'delete');
@@ -134,10 +150,24 @@ module.exports = function(bot, analytics) {
         client.bookmarks.delete(BOOKMARKID).then(function() {
             // remove meta and user info
             BOOKMARKID = false;
-            bot.sendMessage(chatId, 'статья удалена');
+            bot.sendMessage(chatId, 'статья удалена', keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
         });
-    });
+      };
+
+  bot.on('callback_query', function(msg) {
+    var user = msg.from.id;
+    var data = msg.data;
+    if (data === 'archive') {
+      archiveArticle(msg);
+    } else if (data === 'delete') {
+      deleteArticle(msg);
+    }
+  });
+  bot.onText(countRegExp, sendCount);
+  bot.onText(randomRegExp, sendRandomArticle);
+  bot.onText(/\/archive/, archiveArticle);
+  bot.onText(/\/delete/, deleteArticle);
 };
