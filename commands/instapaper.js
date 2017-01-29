@@ -86,7 +86,7 @@ module.exports = function(bot, analytics) {
             bookmarks.shift();
             var count = bookmarks.length;
             var stateWord = getNumEnding(count, ['статья', 'статьи', 'статей']);
-            bot.sendMessage(chatId, 'у вас *' + count + '* ' + stateWord, keyboardOptions);
+            bot.sendMessage(chatId, 'у вас ' + count + ' ' + stateWord, keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
@@ -95,6 +95,8 @@ module.exports = function(bot, analytics) {
       var sendRandomArticle = function(msg, regexp, callbackQueryId) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
+        var messageId = msg.message_id;
+        var messageText = msg.text;
         analytics(msg, 'random');
         // Load a list of bookmarks using promises...
         client.bookmarks.list({limit: 500}).then(function(bookmarks) {
@@ -106,9 +108,23 @@ module.exports = function(bot, analytics) {
             var randomState = bookmarks[randomNumber].url;
             BOOKMARKID = bookmarks[randomNumber].bookmark_id;
             if (callbackQueryId) {
+              var newText = 'В архиве.\n' + messageText;
+              var replyMarkup = JSON.stringify({
+                inline_keyboard: [[]]
+              });
               bot.answerCallbackQuery(callbackQueryId);
+              bot.editMessageReplyMarkup(replyMarkup, {
+                chat_id: chatId,
+                message_id: messageId
+              });
+              bot.editMessageText(newText, {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true,
+                chat_id: chatId,
+                message_id: messageId
+              });
             }
-            bot.sendMessage(chatId, '*случайная статья №' + randomNumber + ':*\n' + randomState, inlineOptions);
+            bot.sendMessage(chatId, 'случайная статья №' + randomNumber + ':\n' + randomState, inlineOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
