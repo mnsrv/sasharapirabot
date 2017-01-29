@@ -92,7 +92,6 @@ module.exports = function(bot, analytics) {
         });
       };
       var sendRandomArticle = function(msg) {
-        console.log('showing random article...');
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'random');
@@ -111,7 +110,7 @@ module.exports = function(bot, analytics) {
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
-      var archiveArticle = function (msg, regexp, isCallbackQuery) {
+      var archiveArticle = function (msg, regexp, callbackQueryId) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'archive');
@@ -130,18 +129,18 @@ module.exports = function(bot, analytics) {
             // remove meta and user info
             BOOKMARKID = false;
             if (isCallbackQuery) {
-              bot.answerCallbackQuery(archiveCallbackData, 'Статья перенесена в архив', true);
+              bot.answerCallbackQuery(callbackQueryId, 'Статья перенесена в архив', false);
             }
             bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
             if (isCallbackQuery) {
-              bot.answerCallbackQuery(archiveCallbackData);
+              bot.answerCallbackQuery(callbackQueryId);
             }
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
-      var deleteArticle = function (msg, regexp, isCallbackQuery) {
+      var deleteArticle = function (msg, regexp, callbackQueryId) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'delete');
@@ -160,26 +159,27 @@ module.exports = function(bot, analytics) {
             // remove meta and user info
             BOOKMARKID = false;
           if (isCallbackQuery) {
-            bot.answerCallbackQuery(deleteCallbackData, 'Статья удалена', true);
+            bot.answerCallbackQuery(callbackQueryId, 'Статья удалена', true);
           }
             bot.sendMessage(chatId, 'статья удалена', keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
           if (isCallbackQuery) {
-            bot.answerCallbackQuery(deleteCallbackData);
+            bot.answerCallbackQuery(callbackQueryId);
           }
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
 
   bot.on('callback_query', function(msg) {
+    var id = msg.id;
     var user = msg.from.id;
     var message = msg.message;
     var data = msg.data;
     if (data === 'archive') {
-      archiveArticle(message, null, true);
+      archiveArticle(message, null, id);
     } else if (data === 'delete') {
-      deleteArticle(message, null, true);
+      deleteArticle(message, null, id);
     }
   });
   bot.onText(countRegExp, sendCount);
