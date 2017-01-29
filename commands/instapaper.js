@@ -61,8 +61,8 @@ module.exports = function(bot, analytics) {
             bookmarks.shift();
             bookmarks.shift();
             var count = bookmarks.length;
-            var stateWord = getNumEnding(count, ['статью', 'статьи', 'статей']);
             bot.sendMessage(chatId, 'у вас ' + count + ' ' + stateWord);
+            var stateWord = getNumEnding(count, ['статья', 'статьи', 'статей']);
         }).catch(function(err) {
             console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
