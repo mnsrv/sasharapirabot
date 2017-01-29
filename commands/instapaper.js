@@ -79,16 +79,18 @@ module.exports = function(bot, analytics) {
         var chatId = msg.chat.id;
         analytics(msg, 'count');
         // Load a list of bookmarks using promises...
-        client.bookmarks.list({limit: 500}).then(function(bookmarks) {
-            // remove meta and user info
-            bookmarks.shift();
-            bookmarks.shift();
-            var count = bookmarks.length;
-            var stateWord = getNumEnding(count, ['статья', 'статьи', 'статей']);
-            bot.sendMessage(chatId, 'у вас *' + count + '* ' + stateWord, keyboardOptions);
-        }).catch(function(err) {
-            console.warn('oh noes', err);
+        // ...or regular callbacks
+        client.bookmarks.list({limit: 500}, function(err, bookmarks) {
+          if (err) {
             bot.sendMessage(chatId, 'ошибка :c');
+            return console.warn('oh noes', err);
+          }
+          // remove meta and user info
+          bookmarks.shift();
+          bookmarks.shift();
+          var count = bookmarks.length;
+          var stateWord = getNumEnding(count, ['статья', 'статьи', 'статей']);
+          bot.sendMessage(chatId, 'у вас *' + count + '* ' + stateWord, keyboardOptions);
         });
       };
       var sendRandomArticle = function(msg) {
