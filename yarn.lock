@@ -469,14 +469,14 @@ ini@~1.3.0:
   version "1.3.4"
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.4.tgz#0537cb79daf59b59a1a517dff706c86ec039162e"
 
-instapaper@^1.1.0:
+"instapaper@https://github.com/sashamjolnir/node-instapaper":
   version "1.1.0"
-  resolved "https://registry.yarnpkg.com/instapaper/-/instapaper-1.1.0.tgz#9d6eac7f71a272d4a52caf2a15da4aa6dcf371b4"
+  resolved "https://github.com/sashamjolnir/node-instapaper#a966fbc214f7452302e4faba734a8bb3222e9876"
   dependencies:
     bluebird "^2.9.25"
     custom-error "^0.2.1"
     lodash "^3.9.3"
-    mashape-oauth "^0.1.71"
+    mashape-oauth "https://github.com/adamk33n3r/mashape-oauth"
     request "^2.55.0"
     winston "^1.0.0"
   optionalDependencies:
@@ -554,9 +554,9 @@ lodash@^4.13.1:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
-mashape-oauth@^0.1.71:
+"mashape-oauth@https://github.com/adamk33n3r/mashape-oauth":
   version "0.1.71"
-  resolved "https://registry.yarnpkg.com/mashape-oauth/-/mashape-oauth-0.1.71.tgz#1db399aea069d42a716d94b64962cc36d20a2427"
+  resolved "https://github.com/adamk33n3r/mashape-oauth#e3dbd6efbe3cbb27208eb06bd861d282b737948e"
 
 media-typer@0.3.0:
   version "0.3.0"
@@ -767,7 +767,7 @@ request-promise@^4.1.1:
     request-promise-core "1.1.1"
     stealthy-require "^1.0.0"
 
-request@2.57.0, request@^2.55.0:
+request@2.57.0:
   version "2.57.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.57.0.tgz#d445105a42d009b9d724289633b449a6d723d989"
   dependencies:
@@ -790,7 +790,7 @@ request@2.57.0, request@^2.55.0:
     tough-cookie ">=0.12.0"
     tunnel-agent "~0.4.0"
 
-request@^2.69.0:
+request@^2.55.0, request@^2.69.0:
   version "2.79.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.79.0.tgz#4dfe5bf6be8b8cdc37fcf93e04b65577722710de"
   dependencies:
