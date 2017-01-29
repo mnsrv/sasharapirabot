@@ -161,13 +161,20 @@ module.exports = function(bot, analytics) {
       };
 
   bot.on('callback_query', function(msg) {
+    console.log(msg);
     var user = msg.from.id;
+    console.log('from user: ');
+    console.log(user);
     var data = msg.data;
-    console.log('on callback query ');
-    console.log('data: ' + data);
     if (data === 'archive') {
-      console.log('try to archive');
-      archiveArticle(msg);
+      client.bookmarks.archive(BOOKMARKID).then(function(bookmark) {
+        // remove meta and user info
+        BOOKMARKID = false;
+        bot.answerCallbackQuery(data);
+      }).catch(function(err) {
+        console.warn('oh noes', err);
+        bot.answerCallbackQuery(data);
+      });
     } else if (data === 'delete') {
       console.log('try to delete');
       deleteArticle(msg);
