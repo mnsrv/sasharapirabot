@@ -87,10 +87,7 @@ module.exports = function(bot, analytics) {
             var stateWord = getNumEnding(count, ['статья', 'статьи', 'статей']);
             bot.sendMessage(chatId, 'у вас *' + count + '* ' + stateWord, keyboardOptions);
         }).catch(function(err) {
-          console.warn('oh noes');
-          console.log(err);
-          console.log(err.error_code);
-          console.log(err.message);
+            console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
@@ -110,10 +107,7 @@ module.exports = function(bot, analytics) {
             BOOKMARKID = bookmarks[randomNumber].bookmark_id;
             bot.sendMessage(chatId, '*случайная статья №' + randomNumber + ':*\n' + randomState, inlineOptions);
         }).catch(function(err) {
-          console.warn('oh noes');
-          console.log(err);
-          console.log(err.error_code);
-          console.log(err.message);
+            console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
@@ -137,10 +131,7 @@ module.exports = function(bot, analytics) {
             BOOKMARKID = false;
             bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
         }).catch(function(err) {
-          console.warn('oh noes');
-          console.log(err);
-          console.log(err.error_code);
-          console.log(err.message);
+            console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
@@ -164,10 +155,7 @@ module.exports = function(bot, analytics) {
             BOOKMARKID = false;
             bot.sendMessage(chatId, 'статья удалена', keyboardOptions);
         }).catch(function(err) {
-            console.warn('oh noes');
-            console.log(err);
-            console.log(err.error_code);
-            console.log(err.message);
+            console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
