@@ -96,7 +96,6 @@ module.exports = function(bot, analytics) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         var messageId = msg.message_id;
-        var messageText = msg.text;
         analytics(msg, 'random');
         // Load a list of bookmarks using promises...
         client.bookmarks.list({limit: 500}).then(function(bookmarks) {
@@ -108,18 +107,11 @@ module.exports = function(bot, analytics) {
             var randomState = bookmarks[randomNumber].url;
             BOOKMARKID = bookmarks[randomNumber].bookmark_id;
             if (callbackQueryId) {
-              var newText = 'В архиве.\n' + messageText;
               var replyMarkup = JSON.stringify({
                 inline_keyboard: [[]]
               });
               bot.answerCallbackQuery(callbackQueryId);
               bot.editMessageReplyMarkup(replyMarkup, {
-                chat_id: chatId,
-                message_id: messageId
-              });
-              bot.editMessageText(newText, {
-                parse_mode: 'Markdown',
-                disable_web_page_preview: true,
                 chat_id: chatId,
                 message_id: messageId
               });
@@ -134,6 +126,7 @@ module.exports = function(bot, analytics) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         var messageId = msg.message_id;
+        var messageText = msg.text;
         analytics(msg, 'archive');
         if (chatId != CHAT_ID) {
             bot.sendMessage(chatId, 'отказано в доступе');
@@ -150,6 +143,7 @@ module.exports = function(bot, analytics) {
             // remove meta and user info
             BOOKMARKID = false;
             if (callbackQueryId) {
+              var newText = '*Статья в архиве.*\n' + messageText;
               var replyMarkup = JSON.stringify({
                 inline_keyboard: [
                   [{text: "Еще одну", callback_data: randomCallbackData }]
@@ -160,8 +154,15 @@ module.exports = function(bot, analytics) {
                 chat_id: chatId,
                 message_id: messageId
               });
+              bot.editMessageText(newText, {
+                parse_mode: 'Markdown',
+                disable_web_page_preview: true,
+                chat_id: chatId,
+                message_id: messageId
+              });
+            } else {
+              bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
             }
-            bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
             if (callbackQueryId) {
@@ -173,6 +174,8 @@ module.exports = function(bot, analytics) {
       var deleteArticle = function (msg, regexp, callbackQueryId) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
+        var messageId = msg.message_id;
+        var messageText = msg.text;
         analytics(msg, 'delete');
         if (chatId != CHAT_ID) {
             bot.sendMessage(chatId, 'отказано в доступе');
@@ -189,9 +192,26 @@ module.exports = function(bot, analytics) {
             // remove meta and user info
             BOOKMARKID = false;
           if (callbackQueryId) {
+            var newText = '*Статья удалена.*\n' + messageText;
+            var replyMarkup = JSON.stringify({
+              inline_keyboard: [
+                [{text: "Еще одну", callback_data: randomCallbackData }]
+              ]
+            });
             bot.answerCallbackQuery(callbackQueryId, 'Статья удалена', true);
-          }
+            bot.editMessageReplyMarkup(replyMarkup, {
+              chat_id: chatId,
+              message_id: messageId
+            });
+            bot.editMessageText(newText, {
+              parse_mode: 'Markdown',
+              disable_web_page_preview: true,
+              chat_id: chatId,
+              message_id: messageId
+            });
+          } else {
             bot.sendMessage(chatId, 'статья удалена', keyboardOptions);
+          }
         }).catch(function(err) {
             console.warn('oh noes', err);
           if (callbackQueryId) {
