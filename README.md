@@ -1,7 +1,9 @@
 Alfred
 ===============
-Version 2.0
+Version 2.1
 -----------
+
+Update: Now uses Inline and Custom Keyboards
 
 Telegram ~~bot~~ butler helping me with random stuff. Can use this API:
 - Telegram API
