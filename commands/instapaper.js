@@ -110,13 +110,18 @@ module.exports = function(bot, analytics) {
               var replyMarkup = JSON.stringify({
                 inline_keyboard: [[]]
               });
-              bot.answerCallbackQuery(callbackQueryId);
-              bot.editMessageReplyMarkup(replyMarkup, {
-                chat_id: chatId,
-                message_id: messageId
+              bot.answerCallbackQuery(callbackQueryId).then(function(data) {
+                console.log(data);
+                bot.editMessageReplyMarkup(replyMarkup, {
+                  chat_id: chatId,
+                  message_id: messageId
+                }).then(function(message) {
+                  bot.sendMessage(chatId, 'случайная статья №' + randomNumber + ':\n' + randomState, inlineOptions);
+                });
               });
+            } else {
+              bot.sendMessage(chatId, 'случайная статья №' + randomNumber + ':\n' + randomState, inlineOptions);
             }
-            bot.sendMessage(chatId, 'случайная статья №' + randomNumber + ':\n' + randomState, inlineOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
             bot.sendMessage(chatId, 'ошибка :c');
@@ -149,17 +154,24 @@ module.exports = function(bot, analytics) {
                   [{text: "Еще одну", callback_data: randomCallbackData }]
                 ]
               });
-              bot.answerCallbackQuery(callbackQueryId, 'Статья перенесена в архив', false);
-              bot.editMessageReplyMarkup(replyMarkup, {
-                chat_id: chatId,
-                message_id: messageId
-              });
-              bot.editMessageText(newText, {
-                parse_mode: 'Markdown',
-                disable_web_page_preview: true,
-                chat_id: chatId,
-                message_id: messageId
-              });
+              bot.answerCallbackQuery(callbackQueryId, 'Статья перенесена в архив', false)
+                .then(function(data) {
+                  console.log(data);
+                  var options = {
+                    parse_mode: 'Markdown',
+                    disable_web_page_preview: true,
+                    chat_id: chatId,
+                    message_id: messageId
+                  };
+                  bot.editMessageText(newText, options)
+                    .then(function(message) {
+                      var options = {
+                        chat_id: message.chat.id,
+                        message_id: message.message_id
+                      };
+                      bot.editMessageReplyMarkup(replyMarkup, options);
+                    });
+                });
             } else {
               bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
             }
@@ -198,7 +210,7 @@ module.exports = function(bot, analytics) {
                 [{text: "Еще одну", callback_data: randomCallbackData }]
               ]
             });
-            bot.answerCallbackQuery(callbackQueryId, 'Статья удалена', true);
+            bot.answerCallbackQuery(callbackQueryId, 'Статья удалена', false);
             bot.editMessageReplyMarkup(replyMarkup, {
               chat_id: chatId,
               message_id: messageId
