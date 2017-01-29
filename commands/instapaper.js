@@ -10,6 +10,8 @@ module.exports = function(bot, analytics) {
     var randomRegExp = new RegExp('\/random|' + randomText);
     var countText = "Сколько статей в списке?";
     var countRegExp = new RegExp('\/count|' + countText);
+    var archiveCallbackData = 'archive';
+    var deleteCallbackData = 'delete';
 
     var BOOKMARKID = 0;
 
@@ -67,8 +69,8 @@ module.exports = function(bot, analytics) {
     parse_mode: "Markdown",
     reply_markup: {
       inline_keyboard: [
-        [{text: "В архив", callback_data: "archive"}],
-        [{text: "Удалить", callback_data: "delete"}]
+        [{text: "В архив", callback_data: archiveCallbackData }],
+        [{text: "Удалить", callback_data: deleteCallbackData }]
       ]
     }
   };
@@ -90,6 +92,7 @@ module.exports = function(bot, analytics) {
         });
       };
       var sendRandomArticle = function(msg) {
+        console.log('showing random article...');
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'random');
@@ -161,8 +164,10 @@ module.exports = function(bot, analytics) {
     var user = msg.from.id;
     var data = msg.data;
     if (data === 'archive') {
+      console.log('try to archive');
       archiveArticle(msg);
     } else if (data === 'delete') {
+      console.log('try to delete');
       deleteArticle(msg);
     }
   });

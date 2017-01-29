@@ -13,7 +13,7 @@
     "botanio": "^0.0.6",
     "express": "^4.13.4",
     "instapaper": "^1.1.0",
-    "node-telegram-bot-api": "^0.21.1"
+    "node-telegram-bot-api": "^0.26.0"
   },
   "repository": {
     "type": "git",
