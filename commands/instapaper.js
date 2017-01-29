@@ -128,13 +128,13 @@ module.exports = function(bot, analytics) {
         client.bookmarks.archive(BOOKMARKID).then(function(bookmark) {
             // remove meta and user info
             BOOKMARKID = false;
-            if (isCallbackQuery) {
+            if (callbackQueryId) {
               bot.answerCallbackQuery(callbackQueryId, 'Статья перенесена в архив', false);
             }
             bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
-            if (isCallbackQuery) {
+            if (callbackQueryId) {
               bot.answerCallbackQuery(callbackQueryId);
             }
             bot.sendMessage(chatId, 'ошибка :c');
@@ -158,13 +158,13 @@ module.exports = function(bot, analytics) {
         client.bookmarks.delete(BOOKMARKID).then(function() {
             // remove meta and user info
             BOOKMARKID = false;
-          if (isCallbackQuery) {
+          if (callbackQueryId) {
             bot.answerCallbackQuery(callbackQueryId, 'Статья удалена', true);
           }
             bot.sendMessage(chatId, 'статья удалена', keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
-          if (isCallbackQuery) {
+          if (callbackQueryId) {
             bot.answerCallbackQuery(callbackQueryId);
           }
             bot.sendMessage(chatId, 'ошибка :c');
