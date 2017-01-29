@@ -107,16 +107,17 @@ module.exports = function(bot, analytics) {
             var randomState = bookmarks[randomNumber].url;
             BOOKMARKID = bookmarks[randomNumber].bookmark_id;
             if (callbackQueryId) {
-              var replyMarkup = JSON.stringify({
-                inline_keyboard: [[]]
-              });
-              bot.answerCallbackQuery(callbackQueryId).then(function(data) {
-                console.log(data);
+              bot.answerCallbackQuery(callbackQueryId).then(function(success) {
+                if (success !== true)
+                  return false;
+                var replyMarkup = JSON.stringify({
+                  inline_keyboard: []
+                });
                 bot.editMessageReplyMarkup(replyMarkup, {
                   chat_id: chatId,
                   message_id: messageId
                 }).then(function(message) {
-                  bot.sendMessage(chatId, 'случайная статья №' + randomNumber + ':\n' + randomState, inlineOptions);
+                  bot.sendMessage(message.chat.id, 'случайная статья №' + randomNumber + ':\n' + randomState, inlineOptions);
                 });
               });
             } else {
@@ -148,15 +149,11 @@ module.exports = function(bot, analytics) {
             // remove meta and user info
             BOOKMARKID = false;
             if (callbackQueryId) {
-              var newText = '*Статья в архиве.*\n' + messageText;
-              var replyMarkup = JSON.stringify({
-                inline_keyboard: [
-                  [{text: "Еще одну", callback_data: randomCallbackData }]
-                ]
-              });
               bot.answerCallbackQuery(callbackQueryId, 'Статья перенесена в архив', false)
-                .then(function(data) {
-                  console.log(data);
+                .then(function(success) {
+                  if (success !== true)
+                    return false;
+                  var newText = '*Статья в архиве.*\n' + messageText;
                   var options = {
                     parse_mode: 'Markdown',
                     disable_web_page_preview: true,
@@ -169,6 +166,11 @@ module.exports = function(bot, analytics) {
                         chat_id: message.chat.id,
                         message_id: message.message_id
                       };
+                      var replyMarkup = JSON.stringify({
+                        inline_keyboard: [
+                          [{text: "Еще одну", callback_data: randomCallbackData }]
+                        ]
+                      });
                       bot.editMessageReplyMarkup(replyMarkup, options);
                     });
                 });
@@ -204,23 +206,31 @@ module.exports = function(bot, analytics) {
             // remove meta and user info
             BOOKMARKID = false;
           if (callbackQueryId) {
-            var newText = '*Статья удалена.*\n' + messageText;
-            var replyMarkup = JSON.stringify({
-              inline_keyboard: [
-                [{text: "Еще одну", callback_data: randomCallbackData }]
-              ]
-            });
-            bot.answerCallbackQuery(callbackQueryId, 'Статья удалена', false);
-            bot.editMessageReplyMarkup(replyMarkup, {
-              chat_id: chatId,
-              message_id: messageId
-            });
-            bot.editMessageText(newText, {
-              parse_mode: 'Markdown',
-              disable_web_page_preview: true,
-              chat_id: chatId,
-              message_id: messageId
-            });
+            bot.answerCallbackQuery(callbackQueryId, 'Статья удалена', false)
+              .then(function(success) {
+                if (success !== true)
+                  return false;
+                var newText = '*Статья удалена.*\n' + messageText;
+                var options = {
+                  parse_mode: 'Markdown',
+                  disable_web_page_preview: true,
+                  chat_id: chatId,
+                  message_id: messageId
+                };
+                bot.editMessageText(newText, options)
+                  .then(function(message) {
+                    var options = {
+                      chat_id: message.chat.id,
+                      message_id: message.message_id
+                    };
+                    var replyMarkup = JSON.stringify({
+                      inline_keyboard: [
+                        [{text: "Еще одну", callback_data: randomCallbackData }]
+                      ]
+                    });
+                    bot.editMessageReplyMarkup(replyMarkup, options);
+                  });
+              });
           } else {
             bot.sendMessage(chatId, 'статья удалена', keyboardOptions);
           }
