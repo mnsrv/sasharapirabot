@@ -117,6 +117,7 @@ module.exports = function(bot, analytics) {
       var archiveArticle = function (msg, regexp, callbackQueryId) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
+        var messageId = msg.message_id;
         analytics(msg, 'archive');
         if (chatId != CHAT_ID) {
             bot.sendMessage(chatId, 'отказано в доступе');
@@ -139,7 +140,10 @@ module.exports = function(bot, analytics) {
                 ]
               });
               bot.answerCallbackQuery(callbackQueryId, 'Статья перенесена в архив', false);
-              bot.editMessageReplyMarkup(replyMarkup);
+              bot.editMessageReplyMarkup(replyMarkup, {
+                chat_id: chatId,
+                message_id: messageId
+              });
             }
             bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
         }).catch(function(err) {
