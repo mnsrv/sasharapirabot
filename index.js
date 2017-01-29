@@ -1,5 +1,3 @@
-'use strict';
-
 var express = require('express');
 var bodyParser = require('body-parser');
 var app = express();
@@ -15,7 +13,7 @@ app.listen(app.get('port'), function() {
 
 var TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 var BOTANIO_TOKEN = process.env.BOTANIO_TOKEN;
-var TelegramBot = require('node-telegram-bot-api');
+var TelegramBot = require('node-telegram-bot-api/lib/telegram');
 var bot = new TelegramBot(TELEGRAM_TOKEN, {polling: true});
 var botan = require('botanio')(BOTANIO_TOKEN);
 var analytics = function(userMessage, event) {
