@@ -163,6 +163,8 @@ module.exports = function(bot, analytics) {
   bot.on('callback_query', function(msg) {
     var user = msg.from.id;
     var data = msg.data;
+    console.log('on callback query ');
+    console.log('data: ' + data);
     if (data === 'archive') {
       console.log('try to archive');
       archiveArticle(msg);
