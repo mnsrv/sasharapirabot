@@ -111,7 +111,7 @@ module.exports = function(bot, analytics) {
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
-      var archiveArticle = function (msg) {
+      var archiveArticle = function (msg, regexp, isCallbackQuery) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'archive');
@@ -129,13 +129,19 @@ module.exports = function(bot, analytics) {
         client.bookmarks.archive(BOOKMARKID).then(function(bookmark) {
             // remove meta and user info
             BOOKMARKID = false;
+            if (isCallbackQuery) {
+              bot.answerCallbackQuery(archiveCallbackData, 'Статья перенесена в архив', true);
+            }
             bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
+            if (isCallbackQuery) {
+              bot.answerCallbackQuery(archiveCallbackData);
+            }
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
-      var deleteArticle = function (msg) {
+      var deleteArticle = function (msg, regexp, isCallbackQuery) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'delete');
@@ -153,31 +159,27 @@ module.exports = function(bot, analytics) {
         client.bookmarks.delete(BOOKMARKID).then(function() {
             // remove meta and user info
             BOOKMARKID = false;
+          if (isCallbackQuery) {
+            bot.answerCallbackQuery(deleteCallbackData, 'Статья удалена', true);
+          }
             bot.sendMessage(chatId, 'статья удалена', keyboardOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
+          if (isCallbackQuery) {
+            bot.answerCallbackQuery(deleteCallbackData);
+          }
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
 
   bot.on('callback_query', function(msg) {
-    console.log(msg);
     var user = msg.from.id;
-    console.log('from user: ');
-    console.log(user);
+    var message = msg.message;
     var data = msg.data;
     if (data === 'archive') {
-      client.bookmarks.archive(BOOKMARKID).then(function(bookmark) {
-        // remove meta and user info
-        BOOKMARKID = false;
-        bot.answerCallbackQuery(data);
-      }).catch(function(err) {
-        console.warn('oh noes', err);
-        bot.answerCallbackQuery(data);
-      });
+      archiveArticle(message, null, true);
     } else if (data === 'delete') {
-      console.log('try to delete');
-      deleteArticle(msg);
+      deleteArticle(message, null, true);
     }
   });
   bot.onText(countRegExp, sendCount);
