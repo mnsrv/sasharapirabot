@@ -67,7 +67,6 @@ module.exports = function(bot, analytics) {
     })
   };
   var inlineOptions = {
-    parse_mode: "Markdown",
     reply_markup: JSON.stringify({
       inline_keyboard: [
         [{text: "В архив", callback_data: archiveCallbackData }],
