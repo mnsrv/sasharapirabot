@@ -12,6 +12,7 @@ module.exports = function(bot, analytics) {
     var countRegExp = new RegExp('\/count|' + countText);
     var archiveCallbackData = 'archive';
     var deleteCallbackData = 'delete';
+    var randomCallbackData = 'random';
 
     var BOOKMARKID = 0;
 
@@ -58,21 +59,21 @@ module.exports = function(bot, analytics) {
 
   var keyboardOptions = {
     parse_mode: "Markdown",
-    reply_markup: {
+    reply_markup: JSON.stringify({
       keyboard: [
         [{ text: randomText }],
         [{ text: countText }]
       ]
-    }
+    })
   };
   var inlineOptions = {
     parse_mode: "Markdown",
-    reply_markup: {
+    reply_markup: JSON.stringify({
       inline_keyboard: [
         [{text: "В архив", callback_data: archiveCallbackData }],
         [{text: "Удалить", callback_data: deleteCallbackData }]
       ]
-    }
+    })
   };
       var sendCount = function(msg) {
         var fromId = msg.from.id;
@@ -91,7 +92,7 @@ module.exports = function(bot, analytics) {
             bot.sendMessage(chatId, 'ошибка :c');
         });
       };
-      var sendRandomArticle = function(msg) {
+      var sendRandomArticle = function(msg, regexp, callbackQueryId) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         analytics(msg, 'random');
@@ -104,6 +105,9 @@ module.exports = function(bot, analytics) {
             var randomNumber = getRandomInt(0, count);
             var randomState = bookmarks[randomNumber].url;
             BOOKMARKID = bookmarks[randomNumber].bookmark_id;
+            if (callbackQueryId) {
+              bot.answerCallbackQuery(callbackQueryId);
+            }
             bot.sendMessage(chatId, '*случайная статья №' + randomNumber + ':*\n' + randomState, inlineOptions);
         }).catch(function(err) {
             console.warn('oh noes', err);
@@ -129,7 +133,13 @@ module.exports = function(bot, analytics) {
             // remove meta and user info
             BOOKMARKID = false;
             if (callbackQueryId) {
+              var replyMarkup = JSON.stringify({
+                inline_keyboard: [
+                  [{text: "Еще одну", callback_data: randomCallbackData }]
+                ]
+              });
               bot.answerCallbackQuery(callbackQueryId, 'Статья перенесена в архив', false);
+              bot.editMessageReplyMarkup(replyMarkup);
             }
             bot.sendMessage(chatId, 'статья перенесена в архив', keyboardOptions);
         }).catch(function(err) {
@@ -176,10 +186,12 @@ module.exports = function(bot, analytics) {
     var user = msg.from.id;
     var message = msg.message;
     var data = msg.data;
-    if (data === 'archive') {
+    if (data === archiveCallbackData) {
       archiveArticle(message, null, id);
-    } else if (data === 'delete') {
+    } else if (data === deleteCallbackData) {
       deleteArticle(message, null, id);
+    } else if (data === randomCallbackData) {
+      sendRandomArticle(message, null, id);
     }
   });
   bot.onText(countRegExp, sendCount);
