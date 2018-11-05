@@ -1,4 +1,4 @@
-module.exports = function(bot, analytics) {
+module.exports = function(bot) {
     // Alfred
     var Instapaper = require('instapaper');
     var CONSUMER_KEY = process.env.CONSUMER_KEY;
@@ -77,7 +77,6 @@ module.exports = function(bot, analytics) {
       var sendCount = function(msg) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
-        analytics(msg, 'count');
         // Load a list of bookmarks using promises...
         client.bookmarks.list({limit: 500}).then(function(bookmarks) {
             // remove meta and user info
@@ -95,7 +94,6 @@ module.exports = function(bot, analytics) {
         var fromId = msg.from.id;
         var chatId = msg.chat.id;
         var messageId = msg.message_id;
-        analytics(msg, 'random');
         // Load a list of bookmarks using promises...
         client.bookmarks.list({limit: 500}).then(function(bookmarks) {
             // remove meta and user info
@@ -132,7 +130,6 @@ module.exports = function(bot, analytics) {
         var chatId = msg.chat.id;
         var messageId = msg.message_id;
         var messageText = msg.text;
-        analytics(msg, 'archive');
         if (chatId != CHAT_ID) {
             bot.sendMessage(chatId, 'отказано в доступе');
             return false;
@@ -189,7 +186,6 @@ module.exports = function(bot, analytics) {
         var chatId = msg.chat.id;
         var messageId = msg.message_id;
         var messageText = msg.text;
-        analytics(msg, 'delete');
         if (chatId != CHAT_ID) {
             bot.sendMessage(chatId, 'отказано в доступе');
             return false;

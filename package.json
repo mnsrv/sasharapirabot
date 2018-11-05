@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.1",
-    "botanio": "^0.0.6",
     "express": "^4.13.4",
     "instapaper": "sashamjolnir/node-instapaper",
     "node-telegram-bot-api": "^0.26.0"

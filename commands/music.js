@@ -1,4 +1,4 @@
-module.exports = function(app, bot, analytics) {
+module.exports = function(app, bot) {
     var SLACK_TOKEN = process.env.SLACK_TOKEN;
     var LASTFM_API_KEY = process.env.LASTFM_API_KEY;
     
@@ -59,7 +59,6 @@ module.exports = function(app, bot, analytics) {
     // Matches /music
     bot.onText(/\/music/, function (msg) {
         var chatId = msg.chat.id;
-        analytics(msg, 'music');
         var telegramCallback = function(music) {
             bot.sendMessage(chatId, music);
         };
